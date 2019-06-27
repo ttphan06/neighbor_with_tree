@@ -459,11 +459,12 @@ void    CBSTree<NodeType>::InOrderTraversal(void  (*fPtr)(const NodeType&)) cons
 // Input:
 //      newItem [IN]    -- a pointer to a NodeType object; it is assumed that 
 //                         the object is fully initialized and ready to be 
-//                         inserted
+//                         inserted (node of neighbor)
 //
 //      nodePtr [IN]    -- a pointer to a tree node (initially this is usually 
 //                         the root)
 //
+//      treeHeight [IN] -- the current height of tree(useful for k-d tree)
 // Output:
 //      A pointer to the (potentially new) root of the tree
 //
@@ -471,8 +472,18 @@ void    CBSTree<NodeType>::InOrderTraversal(void  (*fPtr)(const NodeType&)) cons
 
 template    <typename  NodeType>
 CTreeNode<NodeType>*  CBSTree<NodeType>::Insert(const NodeType  &newItem
-                                            , CTreeNode<NodeType>  *nodePtr)
+			, CTreeNode<NodeType>  *nodePtr, const int treeHeight)
 {
+    // get pointer to function that return the coordinate
+    int currDim = treeHeight % DIMENSIONAL;
+    double (Neighbor::*coordFunc)() const = NULL;
+    if (currDim == 0)
+      coordFunc = &Neighbor::GetXCoord;
+    else if (currDim == 1)
+      coordFunc = &Neighbor::GetYCoord;
+    else if (currDim == 2)
+      coordFunc = &Neighbor::GetZCoord;
+
     // add a new node to the tree.
     if (NULL == nodePtr)
         {
@@ -481,7 +492,8 @@ CTreeNode<NodeType>*  CBSTree<NodeType>::Insert(const NodeType  &newItem
         nodePtr->m_left = nodePtr->m_right = NULL;
         }
     
-    // find the right place to add new node to the tree.
+    // find the right place to add new node to the tree.(regular tree algorithm)
+    /*
     else if (newItem.GetDistance() < nodePtr->m_value.GetDistance())
         {
         nodePtr->m_left = Insert(newItem, nodePtr->m_left);
@@ -490,6 +502,13 @@ CTreeNode<NodeType>*  CBSTree<NodeType>::Insert(const NodeType  &newItem
         {
         nodePtr->m_right = Insert(newItem, nodePtr->m_right);
         }
+    */
+    // apply k-d tree insert algorithm
+    else if (newItem.coordFunc() < nodePtr->m_value.coordFunc())
+      {
+      }
+
+    
     return nodePtr;
     
 }  // end of "CBSTree<NodeType>::Insert"
@@ -525,7 +544,7 @@ bool    CBSTree<NodeType>::InsertItem(const NodeType  &newItem)
         }
     else
         {
-        m_root = Insert(newItem, m_root);
+	m_root = Insert(newItem, m_root, 0);
         if (NULL == m_root)
             {
             return false;

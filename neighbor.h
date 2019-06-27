@@ -5,25 +5,25 @@
 #ifndef NEIGHBOR_HEADER
 #define NEIGHBOR_HEADER
 
+const int DIMENSIONAL = 3;
+
 class Neighbor
 {
 public:
     int GetName() const { return name; }
     double GetDistance() const { return distanceToTarget; }
-    double GetXCoord() const { return xCoord; }
-    double GetYCoord() const { return yCoord; }
-    double GetZCoord() const { return zCoord; }
+    double GetXCoord() const { return coord[0]; }
+    double GetYCoord() const { return coord[1]; }
+    double GetZCoord() const { return coord[2]; }
     void SetName(const int n) { name = n; }
     void SetDistance(const double d) { distanceToTarget = d; }
-    void SetXCoord(const double x) { xCoord = x; }
-    void SetYCoord(const double y) { yCoord = y; }
-    void SetZCoord(const double z) { zCoord = z; }
+    void SetXCoord(const double x) { coord[0] = x; }
+    void SetYCoord(const double y) { coord[1] = y; }
+    void SetZCoord(const double z) { coord[2] = z; }
 private:
     int         name;
     double      distanceToTarget;
-    double      xCoord;
-    double      yCoord;
-    double      zCoord;
+    double      coord[DIMENSIONAL]; // point store x,y,z... base on dimension
 };
 
 #endif //NEIGHBOR_HEADER

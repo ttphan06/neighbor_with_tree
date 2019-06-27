@@ -51,7 +51,7 @@ protected:
     void        InOrder(const CTreeNode<NodeType> *const nodePtr
                                     , void (*fPtr)(const NodeType&)) const;
     CTreeNode<NodeType>*   Insert(const NodeType  &newItem
-                                            , CTreeNode<NodeType>  *nodePtr);
+			 , CTreeNode<NodeType>  *nodePtr, const int treeHeight);
     void        PostOrder(const CTreeNode<NodeType>  *const nodePtr
                                         , void (*fPtr)(const NodeType&)) const;
     void        PreOrder(const CTreeNode<NodeType>  *const nodePtr

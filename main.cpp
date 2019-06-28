@@ -10,7 +10,7 @@
 using namespace std;
 
 // global constant, number of point on the graph
-const int NUM_NODE = 100;
+const int NUM_NODE = 10;
 
 // function prototype
 void SetupCoordinate(Neighbor node[]);
@@ -37,21 +37,22 @@ int main()
     // ask user for input, generate tree and get nearest neighbor
     do {
         neighborTree.DestroyTree();
-        cout << "There are 100 points on the graph\n"
-	     << "Enter target point (from 1 to 100): ";
+        cout << "There are 10 points on the graph\n"
+	     << "Enter target point (from 1 to 10): ";
 	cin >> center;
 	if (center > 100) // avoid out of bound
 	{
 	    center = 100;
 	}
-	cout << "How many nearest neighbor you want?: ";
-	cin >> numNeig;
+	//cout << "How many nearest neighbor you want?: ";
+	//cin >> numNeig;
 	if (numNeig > 99) // avoid out of bound
 	{
 	    numNeig = 99;
+
 	}
 	AddNodeToTree(node[center - 1], node, neighborTree);
-	neighborTree.NeighborTraversal(DisplayNeighbor, numNeig);
+	neighborTree.NeighborTraversal(DisplayNeighbor, node[center - 1], numNeig);
 	cout << "Enter Q to quit or anything to continue: ";
 	cin >> quit;
 	quit = tolower(quit);
@@ -103,10 +104,6 @@ void AddNodeToTree(Neighbor &root, Neighbor point[], CBSTree<Neighbor> &tree)
 {
     double sum = 0;
 
-    // add root to tree
-    root.SetDistance(0);
-    tree.InsertItem(root);
-
     // get Euclidean distance and insert to tree
     for (int index = 0; index < NUM_NODE; ++index)
     {
@@ -114,6 +111,9 @@ void AddNodeToTree(Neighbor &root, Neighbor point[], CBSTree<Neighbor> &tree)
         sum += pow(root.GetYCoord() - point[index].GetYCoord(), 2);
         sum += pow(root.GetZCoord() - point[index].GetZCoord(), 2);
 	point[index].SetDistance(sqrt(sum));
+
+	cout << "+++++ FROM MAIN ++++\n";
+	cout << point[index].GetDistance() << endl;
 	tree.InsertItem(point[index]);
     }
 } // end of "AddNodeToTree"

@@ -11,7 +11,7 @@
 
 #include    "ctreenode.h"
 #include    "neighbor.h"
-
+#include    <list>
 // class declaration
 template    <typename  NodeType>
 class   CBSTree
@@ -34,8 +34,8 @@ public:
     bool    RetrieveItem(const NodeType  &target) const;
 
     // for nearest neighbor problem
-    void    NeighborTraversal(void (*fPtr)(const NodeType&), int &num) const;
-
+    void    NeighborTraversal(void (*fPtr)(const NodeType&)
+			      , const NodeType &target, int &num);
     // operators
     CBSTree<NodeType>&  operator=(const CBSTree<NodeType> &rhs);
 
@@ -57,10 +57,11 @@ protected:
     void        PreOrder(const CTreeNode<NodeType>  *const nodePtr
                                         , void (*fPtr)(const NodeType&)) const;
     CTreeNode<NodeType>*  Retrieve(const NodeType  &target
-                                        , CTreeNode<NodeType> *nodePtr) const;
+			 , CTreeNode<NodeType> *nodePtr, const int height) const;
     // for nearest neighbor problem
-    void Neighbor(const CTreeNode<NodeType>  *const nodePtr
-		  , void (*fPtr)(const NodeType&), int &numNeighbor) const;
+    void NaiveNeighbor(CTreeNode<NodeType> *nodePtr
+		     , void (*fPtr)(const NodeType&), const NodeType &target
+		     , list<NodeType> &listN, const int height);
 private:
     // member functions
     CTreeNode<NodeType>*    CopyTree(const CTreeNode<NodeType>  *sourcePtr);

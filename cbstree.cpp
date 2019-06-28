@@ -12,7 +12,7 @@
 using namespace std;
 #include    "cbstree.h"
 #include    "neighbor.h"
-
+#include    "math.h"
 
 // ==== CBSTree::CBSTree ======================================================
 //
@@ -491,24 +491,15 @@ CTreeNode<NodeType>*  CBSTree<NodeType>::Insert(const NodeType  &newItem
         nodePtr->m_value = newItem;
         nodePtr->m_left = nodePtr->m_right = NULL;
         }
-    
-    // find the right place to add new node to the tree.(regular tree algorithm)
-    /*
-    else if (newItem.GetDistance() < nodePtr->m_value.GetDistance())
-        {
-        nodePtr->m_left = Insert(newItem, nodePtr->m_left);
-        }
-    else if (newItem.GetDistance() > nodePtr->m_value.GetDistance())
-        {
-        nodePtr->m_right = Insert(newItem, nodePtr->m_right);
-        }
-    */
     // apply k-d tree insert algorithm
-    else if (newItem.coordFunc() < nodePtr->m_value.coordFunc())
+    else if ((newItem.*coordFunc)() < (nodePtr->m_value.*coordFunc)())
       {
+	nodePtr->m_left = Insert(newItem, nodePtr->m_left, treeHeight + 1);
       }
-
-    
+    else
+      {
+	nodePtr->m_right = Insert(newItem, nodePtr->m_right, treeHeight + 1);
+      }
     return nodePtr;
     
 }  // end of "CBSTree<NodeType>::Insert"
@@ -704,6 +695,7 @@ void    CBSTree<NodeType>::PreOrderTraversal(void (*fPtr)(const NodeType&)) cons
 //      nodePtr [IN]    -- a pointer to a tree node (initially this is usually 
 //                         the root)
 //
+//      height [IN]     -- tree height         
 // Output:
 //      If a tree node is found that has the same value as the target
 //      parameter, then a pointer to  the node in the tree is returned.
@@ -713,24 +705,42 @@ void    CBSTree<NodeType>::PreOrderTraversal(void (*fPtr)(const NodeType&)) cons
 
 template    <typename  NodeType>
 CTreeNode<NodeType>*  CBSTree<NodeType>::Retrieve(const NodeType  &target
-                                          , CTreeNode<NodeType>  *nodePtr) const
+		  , CTreeNode<NodeType>  *nodePtr, const int height) const
 {
+        int currDim = height % DIMENSIONAL;
+
+	// get pointer to function
+	double (Neighbor::*coordFunc)() const = NULL;
+	if (currDim == 0)
+	  coordFunc = &Neighbor::GetXCoord;
+	else if (currDim == 1)
+	  coordFunc = &Neighbor::GetYCoord;
+	else if (currDim == 2)
+	  coordFunc = &Neighbor::GetZCoord;
+
     // check to see if recursive reach base case (if this base case is true,
     // then the target is not in the tree).
     if (NULL == nodePtr)
         {
         return NULL;
         }
+
+    if ((nodePtr->m_value.GetXCoord() == target.GetXCoord())
+	&& (nodePtr->m_value.GetYCoord() == target.GetYCoord())
+	&& (nodePtr->m_value.GetZCoord() == target.GetZCoord()))
+      {
+	return nodePtr;
+      }
     
     // perform searching for target.
-    else if (target.GetDistance() < nodePtr->m_value.GetDistance())
-        {
-        nodePtr = Retrieve(target, nodePtr->m_left);
-        }
-    else if (target.GetDistance() > nodePtr->m_value.GetDistance())
-        {
-        nodePtr = Retrieve(target, nodePtr->m_right);
-        }
+    if ((target.*coordFunc)() < (nodePtr->m_value.*coordFunc)())
+      {
+	nodePtr = Retrieve(target, nodePtr->m_left, height + 1);
+      }
+    else 
+      {
+	nodePtr = Retrieve(target, nodePtr->m_right, height + 1);
+      }
     return nodePtr;
 
 }  // end of "CBSTree<NodeType>::Retrieve"
@@ -764,7 +774,7 @@ bool    CBSTree<NodeType>::RetrieveItem(const NodeType  &target) const
         }
         
     // call protected member function to retrieve target.
-    if (NULL == Retrieve(target, m_root))
+    if (NULL == Retrieve(target, m_root, 0))
         {
         return false;
         }
@@ -816,43 +826,80 @@ CBSTree<NodeType>&  CBSTree<NodeType>::operator=(const CBSTree<NodeType> &rhs)
 
 template    <typename  NodeType>
 void CBSTree<NodeType>::NeighborTraversal(void (*fPtr)(const NodeType&)
-					, int &num) const
+					  , const NodeType &target, int &num) 
 {
+  list<NodeType> listN;
     if (NULL != m_root)
     {
-        Neighbor(m_root->m_right, fPtr, num);
+        Retrieve(target, m_root, 0);
+	NaiveNeighbor(m_root, fPtr, target, listN, 0);
     }
+    for (auto it = listN.begin(); it != listN.end(); ++it)
+      {
+	cout << (*it).GetName() << " " << (*it).GetDistance() << endl;
+      }
 }
 
 
 
-// === CBSTree::Neighbor ======================================================
-// This function will do inorder traversal to get nearest neighbor
+// === CBSTree::NaiveNeighbor =================================================
+// This function will do naive traversal to find neighbors
 //
 // Input: -- fPtr: this is pointer to function. It will call this function to
 //                 display neighbor information.
 //        -- numNeighbor: number of neighbor user wants.
-//
+//        -- height: current tree level
 // Output: Nothing
 //
 // ============================================================================
 
 template    <typename  NodeType>
-void CBSTree<NodeType>::Neighbor(const CTreeNode<NodeType>  *const nodePtr
-	      , void (*fPtr)(const NodeType&), int &numNeighbor) const
+void CBSTree<NodeType>::NaiveNeighbor(CTreeNode<NodeType> *nodePtr
+		 , void (*fPtr)(const NodeType&), const NodeType &target
+	         , list<NodeType> &listN, const int height) 
 {
-    if (NULL != nodePtr)
-    {
-        Neighbor(nodePtr->m_left, fPtr, numNeighbor);
-        if (numNeighbor >= 1)
- 	{
-            fPtr(nodePtr->m_value);
-	    --numNeighbor;
+	if (nodePtr == NULL)
+	{
+	    return;
+	}
+
+	NaiveNeighbor(nodePtr->m_left, fPtr, target, listN, height);
+	
+        int currDim = height % DIMENSIONAL;
+
+	// get pointer to function that return coordinate
+	double (Neighbor::*coordFunc)() const = NULL;
+	if (currDim == 0)
+	  coordFunc = &Neighbor::GetXCoord;
+	else if (currDim == 1)
+	  coordFunc = &Neighbor::GetYCoord;
+	else if (currDim == 2)
+	  coordFunc = &Neighbor::GetZCoord;
+
+	// get distance to neighbor
+	double dist = 0;
+	dist = pow(nodePtr->m_value.GetXCoord() - target.GetXCoord(), 2);
+	dist += pow(nodePtr->m_value.GetYCoord() - target.GetYCoord(), 2);
+	dist += pow(nodePtr->m_value.GetZCoord() - target.GetZCoord(), 2);
+	dist = sqrt(dist);
+	nodePtr->m_value.SetDistance(dist);
+	// get 6 nearest neighbor
+	if (listN.size() < 11)
+	{
+	    listN.push_back(nodePtr->m_value);
 	}
 	else
-        {
-	    return;
-        }
-	Neighbor(nodePtr->m_right, fPtr, numNeighbor);
-    }
+	{
+	    if (nodePtr->m_value.GetDistance() < listN.back().GetDistance())
+	      {
+		//listN.pop_back();
+		listN.push_back(nodePtr->m_value);
+	      }
+	}
+
+	NaiveNeighbor(nodePtr->m_right, fPtr, target, listN, height);
+	
 } // end of "CBSTree::Neighbor"
+
+
+

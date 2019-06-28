@@ -828,16 +828,24 @@ template    <typename  NodeType>
 void CBSTree<NodeType>::NeighborTraversal(void (*fPtr)(const NodeType&)
 					  , const NodeType &target, int &num) 
 {
-  list<NodeType> listN;
+  vector<NodeType> listN;
+  vector<NodeType> listN2;
     if (NULL != m_root)
     {
         Retrieve(target, m_root, 0);
 	NaiveNeighbor(m_root, fPtr, target, listN, 0);
+	OptNeighbor(m_root, target, listN2, 0);
     }
     for (auto it = listN.begin(); it != listN.end(); ++it)
       {
 	cout << (*it).GetName() << " " << (*it).GetDistance() << endl;
       }
+    cout << "####################\n";
+    for (auto it = listN2.begin(); it != listN2.end(); ++it)
+      {
+	cout << (*it).GetName() << " " << (*it).GetDistance() << endl;
+      }
+
 }
 
 
@@ -856,7 +864,7 @@ void CBSTree<NodeType>::NeighborTraversal(void (*fPtr)(const NodeType&)
 template    <typename  NodeType>
 void CBSTree<NodeType>::NaiveNeighbor(CTreeNode<NodeType> *nodePtr
 		 , void (*fPtr)(const NodeType&), const NodeType &target
-	         , list<NodeType> &listN, const int height) 
+		 , vector<NodeType> &listN, const int height) 
 {
 	if (nodePtr == NULL)
 	{
@@ -884,22 +892,126 @@ void CBSTree<NodeType>::NaiveNeighbor(CTreeNode<NodeType> *nodePtr
 	dist = sqrt(dist);
 	nodePtr->m_value.SetDistance(dist);
 	// get 6 nearest neighbor
-	if (listN.size() < 11)
+	if ((listN.size() < NUM_NEAREST_NEIGH) && (nodePtr->m_value.GetDistance() > 0))
 	{
 	    listN.push_back(nodePtr->m_value);
 	}
 	else
 	{
-	    if (nodePtr->m_value.GetDistance() < listN.back().GetDistance())
-	      {
-		//listN.pop_back();
-		listN.push_back(nodePtr->m_value);
-	      }
+	  // look for biggest value and remove it
+	  int index = 0;
+	  double currLongest = nodePtr->m_value.GetDistance();
+	  int updateIndex = -1;
+
+	  for (auto it = listN.begin(); it != listN.end(); ++it)
+	    {
+	      if (currLongest < (*it).GetDistance())
+		{
+		  currLongest = (*it).GetDistance();
+		  updateIndex = index;
+		}
+	      ++index;
+	    }
+	  if ((updateIndex > -1) && (nodePtr->m_value.GetDistance() > 0))
+	    {
+	      listN.erase(listN.begin() + updateIndex);
+	      listN.push_back(nodePtr->m_value);
+	    }
 	}
 
 	NaiveNeighbor(nodePtr->m_right, fPtr, target, listN, height);
 	
-} // end of "CBSTree::Neighbor"
+} // end of "CBSTree::NaiveNeighbor"
 
 
 
+template    <typename  NodeType>
+void CBSTree<NodeType>::OptNeighbor(CTreeNode<NodeType> *nodePtr
+    , const NodeType &target, vector<NodeType> &listN, const int height)
+{
+    // get pointer to function that return the coordinate
+    int currDim = height % DIMENSIONAL;
+    double (Neighbor::*coordFunc)() const = NULL;
+    if (currDim == 0)
+      coordFunc = &Neighbor::GetXCoord;
+    else if (currDim == 1)
+      coordFunc = &Neighbor::GetYCoord;
+    else if (currDim == 2)
+      coordFunc = &Neighbor::GetZCoord;
+
+    if (NULL == nodePtr)
+      {
+	return;
+      }
+    // get 6 neighbors
+    double dist = 0;
+    dist = pow(nodePtr->m_value.GetXCoord() - target.GetXCoord(), 2);
+    dist += pow(nodePtr->m_value.GetYCoord() - target.GetYCoord(), 2);
+    dist += pow(nodePtr->m_value.GetZCoord() - target.GetZCoord(), 2);
+    dist = sqrt(dist);
+    nodePtr->m_value.SetDistance(dist);
+    if ((listN.size() < NUM_NEAREST_NEIGH) && (nodePtr->m_value.GetDistance() > 0))
+      {
+	listN.push_back(nodePtr->m_value);
+      }
+    else
+      {
+	// look for biggest value and remove it
+	int index = 0;
+	double currLongest = nodePtr->m_value.GetDistance();
+	int updateIndex = -1;
+
+	for (auto it = listN.begin(); it != listN.end(); ++it)
+	  {
+	    if (currLongest < (*it).GetDistance())
+	      {
+		currLongest = (*it).GetDistance();
+		updateIndex = index;
+	      }
+	    ++index;
+	  }
+	if ((updateIndex > -1) && (nodePtr->m_value.GetDistance() > 0))
+	  {
+	    listN.erase(listN.begin() + updateIndex);
+	    listN.push_back(nodePtr->m_value);
+	  }
+      }
+
+    // traverse to find nearest neighbor
+    if ((target.*coordFunc)() < (nodePtr->m_value.*coordFunc)())
+    {
+	OptNeighbor(nodePtr->m_left, target, listN, height + 1);
+	// detemine if we need to look at the other side
+	double biggest = (*(listN.begin())).GetDistance();
+	for (auto it = listN.begin(); it != listN.end(); ++it)
+	  {
+	    if ((*it).GetDistance() > biggest)
+	      {
+		biggest = (*it).GetDistance();
+	      }
+	  }
+	if ((biggest > abs((nodePtr->m_value.*coordFunc)() - (target.*coordFunc)()))
+	    || (listN.size() < NUM_NEAREST_NEIGH))
+	  {
+	    OptNeighbor(nodePtr->m_right, target, listN, height + 1);
+	  }
+    }
+    else
+    {
+	OptNeighbor(nodePtr->m_right, target, listN, height + 1);
+	// detemine if we need to look at the other side
+	double biggest = (*(listN.begin())).GetDistance();
+	for (auto it = listN.begin(); it != listN.end(); ++it)
+	  {
+	    if ((*it).GetDistance() > biggest)
+	      {
+		biggest = (*it).GetDistance();
+	      }
+	  }
+	if ((biggest > abs((nodePtr->m_value.*coordFunc)() - (target.*coordFunc)()))
+	    || (listN.size() < NUM_NEAREST_NEIGH))
+	  {
+	    OptNeighbor(nodePtr->m_left, target, listN, height + 1);
+	  }
+    }
+}

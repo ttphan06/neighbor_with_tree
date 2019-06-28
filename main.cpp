@@ -10,7 +10,7 @@
 using namespace std;
 
 // global constant, number of point on the graph
-const int NUM_NODE = 10;
+const int NUM_NODE = 100;
 
 // function prototype
 void SetupCoordinate(Neighbor node[]);
@@ -37,8 +37,8 @@ int main()
     // ask user for input, generate tree and get nearest neighbor
     do {
         neighborTree.DestroyTree();
-        cout << "There are 10 points on the graph\n"
-	     << "Enter target point (from 1 to 10): ";
+        cout << "There are 100 points on the graph\n"
+	     << "Enter target point (from 1 to 100): ";
 	cin >> center;
 	if (center > 100) // avoid out of bound
 	{
@@ -46,6 +46,7 @@ int main()
 	}
 	//cout << "How many nearest neighbor you want?: ";
 	//cin >> numNeig;
+	cout << "-- I'll show you 6 nearest neighbors --";	
 	if (numNeig > 99) // avoid out of bound
 	{
 	    numNeig = 99;

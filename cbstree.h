@@ -11,7 +11,9 @@
 
 #include    "ctreenode.h"
 #include    "neighbor.h"
-#include    <list>
+#include    <vector>
+
+int NUM_NEAREST_NEIGH = 1;
 // class declaration
 template    <typename  NodeType>
 class   CBSTree
@@ -61,7 +63,10 @@ protected:
     // for nearest neighbor problem
     void NaiveNeighbor(CTreeNode<NodeType> *nodePtr
 		     , void (*fPtr)(const NodeType&), const NodeType &target
-		     , list<NodeType> &listN, const int height);
+		     , vector<NodeType> &listN, const int height);
+
+    void OptNeighbor(CTreeNode<NodeType> *nodePtr, const NodeType &target
+		     , vector<NodeType> &listN, const int height);
 private:
     // member functions
     CTreeNode<NodeType>*    CopyTree(const CTreeNode<NodeType>  *sourcePtr);

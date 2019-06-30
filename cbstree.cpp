@@ -11,7 +11,6 @@
 #include    <cstdlib>
 using namespace std;
 #include    "cbstree.h"
-#include    "neighbor.h"
 #include    "math.h"
 
 // ==== CBSTree::CBSTree ======================================================
@@ -31,10 +30,10 @@ CBSTree<NodeType>::CBSTree(const CBSTree<NodeType>  &other)
     // perform deep copy if they are not the same tree.
     m_root = NULL;
     if (m_root != other.m_root)
-        {
+    {
         DestroyTree();
         CopyTree(other.m_root);
-        }
+    }
 
 }  // end of "CBSTree<NodeType>::CBSTree"
 
@@ -63,11 +62,11 @@ CTreeNode<NodeType>*    CBSTree<NodeType>::CopyTree(
     // traverse the source tree in pre-order to get the value that will assign
     // to new tree.
     if (NULL != sourcePtr)
-        {
+    {
         InsertItem(sourcePtr->m_value);
         CopyTree(sourcePtr->m_left);
         CopyTree(sourcePtr->m_right);
-        }
+    }
     return m_root;
 
 }  // end of "CBSTree<NodeType>::CopyTree"
@@ -109,38 +108,38 @@ int     CBSTree<NodeType>::CountNodes(const CTreeNode<NodeType>  *nodePtr
     
     // make sure there is a tree node coming into the function.
     if (nodePtr == NULL)
-        {
+    {
         numNodes = 0;
         return -1;
-        }
+    }
     
     // count number of node and height of the tree.
     else
-        {
+    {
         if (NULL != nodePtr->m_left)
-            {
+        {
             leftHeight = CountNodes(nodePtr->m_left, currDepth + 1, numNodes);
             ++numNodes;
-            }
+        }
         if (NULL != nodePtr->m_right)
-            {
+        {
             rightHeight = CountNodes(nodePtr->m_right, currDepth + 1, numNodes);
             ++numNodes;
-            }
         }
+    }
     
     // pick the longest path from the parent node to one of the leaf
     if ((currDepth < leftHeight) || (currDepth < rightHeight))
-        {
+    {
         if (leftHeight > rightHeight)
-            {
+        {
             currDepth = leftHeight;
-            }
-        else 
-            {
-            currDepth = rightHeight;
-            }
         }
+        else 
+        {
+            currDepth = rightHeight;
+        }
+    }
     return currDepth;
     
 }  // end of "CBSTree::CountNodes"
@@ -183,50 +182,50 @@ CTreeNode<NodeType>*  CBSTree<NodeType>::Delete(
     
     // make sure the tree node is valid.
     if (NULL == nodePtr)
-        {
+    {
         return NULL;
-        }
+    }
     
     // perform recursive to the tree node that has the target.
     if (targetItem.GetDistance() < nodePtr->m_value.GetDistance())
-        {
+    {
         nodePtr->m_left = Delete(targetItem, nodePtr->m_left, bItemDeleted);
-        }
+    }
     else if (targetItem.GetDistance() > nodePtr->m_value.GetDistance())
-        {
+    {
         nodePtr->m_right = Delete(targetItem, nodePtr->m_right, bItemDeleted);
-        }
+    }
         
     // delete item and adjust pointer if neccessary.
     else
-        {
+    {
         
         // delete tree node with two children.
         if ((NULL != nodePtr->m_left) && (NULL != nodePtr->m_right))
-            {
+        {
             tempPtr = FindMinNode(nodePtr->m_right);
             nodePtr->m_value = tempPtr->m_value;
             nodePtr->m_right = Delete(nodePtr->m_value, nodePtr->m_right
                                                       , bItemDeleted);
-            }
+        }
             
         // delete tree node with zero or one child.
         else
-            {
+        {
             if (nodePtr->m_right)
-                {
+            {
                 childPtr = nodePtr->m_right;
-                }
+            }
             else if (nodePtr->m_left)
-                {
+            {
                 childPtr = nodePtr->m_left;
-                }
+            }
             delete nodePtr;
             bItemDeleted = true;
             return childPtr;
-            }
         }
-        return nodePtr;
+    }
+    return nodePtr;
 
 }  // end of "CBSTree<NodeType>::Delete"
 
@@ -255,13 +254,13 @@ bool    CBSTree<NodeType>::DeleteItem(const NodeType  &targetItem)
     
     // make sure the target is in the tree, then delete the target.
     if (false == RetrieveItem(targetItem))
-        {
+    {
         return false;
-        }
+    }
     else
-        {
+    {
         m_root = Delete(targetItem, m_root, bResult);
-        }
+    }
     return bResult;
     
 }  // end of "CBSTree<NodeType>::DeleteItem"
@@ -289,14 +288,14 @@ void    CBSTree<NodeType>::DestroyNodes(CTreeNode<NodeType>  *const nodePtr)
     // perform recursive postorder delete. We will call 'Delete' function
     // to release memory when we get to the node that we want to delete.
     if (NULL != nodePtr)
-        {
+    {
         DestroyNodes(nodePtr->m_left);
         DestroyNodes(nodePtr->m_right);
         bool	bResult = false;
         nodePtr->m_left = NULL;
         nodePtr->m_right = NULL;
         Delete(nodePtr->m_value, nodePtr, bResult);
-        }
+    }
 
 }  // end of "CBSTree<ItemType>::DestroyNodes"
 
@@ -323,12 +322,12 @@ CTreeNode<NodeType>*  CBSTree<NodeType>::FindMinNode(
 {
     // Get the left most item of the input node pointer.
     if (NULL != nodePtr)
-        {
+    {
         while (nodePtr->m_left)
-            {
+        {
             nodePtr = nodePtr->m_left;
-            }
         }
+    }
     return nodePtr;
 }  // end of "CBSTree<NodeType>::FindMinNode"
 
@@ -362,16 +361,16 @@ void    CBSTree<NodeType>::GetTreeInfo(int  &numNodes, int  &height) const
     // height of the tree. otherwise, the tree will have the height of -1
     // and zero number of node by default.
     if (m_root != NULL)
-        {
+    {
         numNodes = 1;
         height = 0;
         height = CountNodes(m_root, height, numNodes);
-        }
+    }
     else
-        {
+    {
         numNodes = 0;
         height = -1;
-        }
+    }
 
 }  // end of "CBSTree::GetTreeInfo"
 
@@ -403,11 +402,11 @@ void    CBSTree<NodeType>::InOrder(const CTreeNode<NodeType> *const nodePtr
 {
     // Perform an in-order traversal through the tree
     if (NULL != nodePtr)
-        {
+    {
         InOrder(nodePtr->m_left, fPtr);
         fPtr(nodePtr->m_value);
         InOrder(nodePtr->m_right, fPtr);
-        }
+    }
 
 }  // end of "CBSTree<NodeType>::InOrder"
 
@@ -436,9 +435,9 @@ void    CBSTree<NodeType>::InOrderTraversal(void  (*fPtr)(const NodeType&)) cons
     
     // call 'InOrder' function to perform in-order traversal
     if (NULL != m_root)
-        {
+    {
         InOrder(m_root, fPtr);
-        }
+    }
     
 }  // end of "CBSTree<NodeType>::InOrderTraversal"
 
@@ -476,30 +475,30 @@ CTreeNode<NodeType>*  CBSTree<NodeType>::Insert(const NodeType  &newItem
 {
     // get pointer to function that return the coordinate
     int currDim = treeHeight % DIMENSIONAL;
-    double (Neighbor::*coordFunc)() const = NULL;
+    double (FieldNode::*coordFunc)() const = NULL;
     if (currDim == 0)
-      coordFunc = &Neighbor::GetXCoord;
+      coordFunc = &FieldNode::GetXCoord;
     else if (currDim == 1)
-      coordFunc = &Neighbor::GetYCoord;
+      coordFunc = &FieldNode::GetYCoord;
     else if (currDim == 2)
-      coordFunc = &Neighbor::GetZCoord;
+      coordFunc = &FieldNode::GetZCoord;
 
     // add a new node to the tree.
     if (NULL == nodePtr)
-        {
+    {
         nodePtr = new CTreeNode<NodeType>;
         nodePtr->m_value = newItem;
         nodePtr->m_left = nodePtr->m_right = NULL;
-        }
+    }
     // apply k-d tree insert algorithm
     else if ((newItem.*coordFunc)() < (nodePtr->m_value.*coordFunc)())
-      {
-	nodePtr->m_left = Insert(newItem, nodePtr->m_left, treeHeight + 1);
-      }
+    {
+	   nodePtr->m_left = Insert(newItem, nodePtr->m_left, treeHeight + 1);
+    }
     else
-      {
-	nodePtr->m_right = Insert(newItem, nodePtr->m_right, treeHeight + 1);
-      }
+    {
+	   nodePtr->m_right = Insert(newItem, nodePtr->m_right, treeHeight + 1);
+    }
     return nodePtr;
     
 }  // end of "CBSTree<NodeType>::Insert"
@@ -530,17 +529,17 @@ bool    CBSTree<NodeType>::InsertItem(const NodeType  &newItem)
     // make sure the 'newItem' is not exist in the tree, then perform 
     // insertion by calling protected member function.
     if (true == RetrieveItem(newItem))
-        {
+    {
         return false;
-        }
+    }
     else
-        {
-	m_root = Insert(newItem, m_root, 0);
+    {
+	   m_root = Insert(newItem, m_root, 0);
         if (NULL == m_root)
-            {
+        {
             return false;
-            }
         }
+    }
     return true;
     
 }  // end of "CBSTree<NodeType>::InsertItem"
@@ -573,11 +572,11 @@ void    CBSTree<NodeType>::PostOrder(const CTreeNode<NodeType>  *const nodePtr
 {
     // Performs a post-order traversal through the tree
     if (NULL != nodePtr)
-        {
+    {
         PostOrder(nodePtr->m_left, fPtr);
         PostOrder(nodePtr->m_right, fPtr);
         fPtr(nodePtr->m_value);
-        }
+    }
 
 }  // end of "CBSTree<NodeType>::PostOrder"
 
@@ -605,9 +604,9 @@ void    CBSTree<NodeType>::PostOrderTraversal(void  (*fPtr)(const NodeType&)) co
 {
     // execute a post-order traversal through the tree
     if (NULL != m_root)
-        {
+    {
         PostOrder(m_root, fPtr);
-        }
+    }
 }  // end of "CBSTree<NodeType>::PostOrderTraversal"
 
 
@@ -638,11 +637,11 @@ void    CBSTree<NodeType>::PreOrder(const CTreeNode<NodeType>  *const nodePtr
 {
     // perform pre-order traversal.
     if (NULL != nodePtr)
-        {
+    {
         fPtr(nodePtr->m_value);
         PreOrder(nodePtr->m_left, fPtr);
         PreOrder(nodePtr->m_right, fPtr);
-        }
+    }
 
 }  // end of "CBSTree<NodeType>::PreOrder"
 
@@ -670,9 +669,9 @@ void    CBSTree<NodeType>::PreOrderTraversal(void (*fPtr)(const NodeType&)) cons
 {
     // call protected member function to perform pre-order traversal.
     if (NULL != m_root)
-        {
+    {
         PreOrder(m_root, fPtr);
-        }
+    }
 
 }  // end of "CBSTree<NodeType>::PreOrderTraversal"
 
@@ -710,37 +709,37 @@ CTreeNode<NodeType>*  CBSTree<NodeType>::Retrieve(const NodeType  &target
         int currDim = height % DIMENSIONAL;
 
 	// get pointer to function
-	double (Neighbor::*coordFunc)() const = NULL;
+	double (FieldNode::*coordFunc)() const = NULL;
 	if (currDim == 0)
-	  coordFunc = &Neighbor::GetXCoord;
+	  coordFunc = &FieldNode::GetXCoord;
 	else if (currDim == 1)
-	  coordFunc = &Neighbor::GetYCoord;
+	  coordFunc = &FieldNode::GetYCoord;
 	else if (currDim == 2)
-	  coordFunc = &Neighbor::GetZCoord;
+	  coordFunc = &FieldNode::GetZCoord;
 
     // check to see if recursive reach base case (if this base case is true,
     // then the target is not in the tree).
     if (NULL == nodePtr)
-        {
+    {
         return NULL;
-        }
+    }
 
     if ((nodePtr->m_value.GetXCoord() == target.GetXCoord())
 	&& (nodePtr->m_value.GetYCoord() == target.GetYCoord())
 	&& (nodePtr->m_value.GetZCoord() == target.GetZCoord()))
-      {
-	return nodePtr;
-      }
+    {
+	   return nodePtr;
+    }
     
     // perform searching for target.
     if ((target.*coordFunc)() < (nodePtr->m_value.*coordFunc)())
-      {
-	nodePtr = Retrieve(target, nodePtr->m_left, height + 1);
-      }
+    {
+	   nodePtr = Retrieve(target, nodePtr->m_left, height + 1);
+    }
     else 
-      {
-	nodePtr = Retrieve(target, nodePtr->m_right, height + 1);
-      }
+    {
+	   nodePtr = Retrieve(target, nodePtr->m_right, height + 1);
+    }
     return nodePtr;
 
 }  // end of "CBSTree<NodeType>::Retrieve"
@@ -769,15 +768,15 @@ bool    CBSTree<NodeType>::RetrieveItem(const NodeType  &target) const
 {
     // check condition of the tree.
     if (NULL == m_root)
-        {
+    {
         return false;
-        }
+    }
         
     // call protected member function to retrieve target.
     if (NULL == Retrieve(target, m_root, 0))
-        {
+    {
         return false;
-        }
+    }
     return true;
     
 }  // end of "CBSTree<NodeType>::RetrieveItem"
@@ -803,10 +802,10 @@ CBSTree<NodeType>&  CBSTree<NodeType>::operator=(const CBSTree<NodeType> &rhs)
 {
     // perform deep copy if they are not the same tree.
     if (m_root != rhs.m_root)
-        {
+    {
         DestroyTree();
         CopyTree(rhs.m_root);
-        }
+    }
     return *this;
     
 }  // end of "CBSTree<NodeType>::operator="
@@ -833,18 +832,18 @@ void CBSTree<NodeType>::NeighborTraversal(void (*fPtr)(const NodeType&)
     if (NULL != m_root)
     {
         Retrieve(target, m_root, 0);
-	NaiveNeighbor(m_root, fPtr, target, listN, 0);
-	OptNeighbor(m_root, target, listN2, 0);
+	    NaiveNeighbor(m_root, fPtr, target, listN, 0);
+	    OptNeighbor(m_root, target, listN2, 0);
     }
     for (auto it = listN.begin(); it != listN.end(); ++it)
-      {
-	cout << (*it).GetName() << " " << (*it).GetDistance() << endl;
-      }
+    {
+	    cout << (*it).GetName() << " " << (*it).GetDistance() << endl;
+    }
     cout << "####################\n";
     for (auto it = listN2.begin(); it != listN2.end(); ++it)
-      {
-	cout << (*it).GetName() << " " << (*it).GetDistance() << endl;
-      }
+    {
+	    cout << (*it).GetName() << " " << (*it).GetDistance() << endl;
+    }
 
 }
 
@@ -873,16 +872,16 @@ void CBSTree<NodeType>::NaiveNeighbor(CTreeNode<NodeType> *nodePtr
 
 	NaiveNeighbor(nodePtr->m_left, fPtr, target, listN, height);
 	
-        int currDim = height % DIMENSIONAL;
+    int currDim = height % DIMENSIONAL;
 
 	// get pointer to function that return coordinate
-	double (Neighbor::*coordFunc)() const = NULL;
+	double (FieldNode::*coordFunc)() const = NULL;
 	if (currDim == 0)
-	  coordFunc = &Neighbor::GetXCoord;
+	  coordFunc = &FieldNode::GetXCoord;
 	else if (currDim == 1)
-	  coordFunc = &Neighbor::GetYCoord;
+	  coordFunc = &FieldNode::GetYCoord;
 	else if (currDim == 2)
-	  coordFunc = &Neighbor::GetZCoord;
+	  coordFunc = &FieldNode::GetZCoord;
 
 	// get distance to neighbor
 	double dist = 0;
@@ -898,25 +897,25 @@ void CBSTree<NodeType>::NaiveNeighbor(CTreeNode<NodeType> *nodePtr
 	}
 	else
 	{
-	  // look for biggest value and remove it
-	  int index = 0;
-	  double currLongest = nodePtr->m_value.GetDistance();
-	  int updateIndex = -1;
+	   // look for biggest value and remove it
+	   int index = 0;
+	   double currLongest = nodePtr->m_value.GetDistance();
+	   int updateIndex = -1;
 
-	  for (auto it = listN.begin(); it != listN.end(); ++it)
-	    {
-	      if (currLongest < (*it).GetDistance())
-		{
-		  currLongest = (*it).GetDistance();
-		  updateIndex = index;
-		}
-	      ++index;
-	    }
-	  if ((updateIndex > -1) && (nodePtr->m_value.GetDistance() > 0))
-	    {
-	      listN.erase(listN.begin() + updateIndex);
-	      listN.push_back(nodePtr->m_value);
-	    }
+	   for (auto it = listN.begin(); it != listN.end(); ++it)
+	   {
+	       if (currLongest < (*it).GetDistance())
+	       {
+		      currLongest = (*it).GetDistance();
+		      updateIndex = index;
+           }
+	       ++index;
+	   }
+	   if ((updateIndex > -1) && (nodePtr->m_value.GetDistance() > 0))
+	   {
+	       listN.erase(listN.begin() + updateIndex);
+	       listN.push_back(nodePtr->m_value);
+	   }
 	}
 
 	NaiveNeighbor(nodePtr->m_right, fPtr, target, listN, height);
@@ -931,18 +930,18 @@ void CBSTree<NodeType>::OptNeighbor(CTreeNode<NodeType> *nodePtr
 {
     // get pointer to function that return the coordinate
     int currDim = height % DIMENSIONAL;
-    double (Neighbor::*coordFunc)() const = NULL;
+    double (FieldNode::*coordFunc)() const = NULL;
     if (currDim == 0)
-      coordFunc = &Neighbor::GetXCoord;
+      coordFunc = &FieldNode::GetXCoord;
     else if (currDim == 1)
-      coordFunc = &Neighbor::GetYCoord;
+      coordFunc = &FieldNode::GetYCoord;
     else if (currDim == 2)
-      coordFunc = &Neighbor::GetZCoord;
+      coordFunc = &FieldNode::GetZCoord;
 
     if (NULL == nodePtr)
-      {
-	return;
-      }
+    {
+	   return;
+    }
     // get 6 neighbors
     double dist = 0;
     dist = pow(nodePtr->m_value.GetXCoord() - target.GetXCoord(), 2);
@@ -951,67 +950,67 @@ void CBSTree<NodeType>::OptNeighbor(CTreeNode<NodeType> *nodePtr
     dist = sqrt(dist);
     nodePtr->m_value.SetDistance(dist);
     if ((listN.size() < NUM_NEAREST_NEIGH) && (nodePtr->m_value.GetDistance() > 0))
-      {
-	listN.push_back(nodePtr->m_value);
-      }
+    {
+	   listN.push_back(nodePtr->m_value);
+    }
     else
-      {
-	// look for biggest value and remove it
-	int index = 0;
-	double currLongest = nodePtr->m_value.GetDistance();
-	int updateIndex = -1;
+    {
+    	// look for biggest value and remove it
+    	int index = 0;
+    	double currLongest = nodePtr->m_value.GetDistance();
+    	int updateIndex = -1;
 
-	for (auto it = listN.begin(); it != listN.end(); ++it)
-	  {
-	    if (currLongest < (*it).GetDistance())
-	      {
-		currLongest = (*it).GetDistance();
-		updateIndex = index;
-	      }
-	    ++index;
-	  }
-	if ((updateIndex > -1) && (nodePtr->m_value.GetDistance() > 0))
-	  {
-	    listN.erase(listN.begin() + updateIndex);
-	    listN.push_back(nodePtr->m_value);
-	  }
-      }
+    	for (auto it = listN.begin(); it != listN.end(); ++it)
+    	{
+    	   if (currLongest < (*it).GetDistance())
+    	   {
+    	       currLongest = (*it).GetDistance();
+    		  updateIndex = index;
+    	   }
+    	   ++index;
+    	}
+    	if ((updateIndex > -1) && (nodePtr->m_value.GetDistance() > 0))
+    	{
+            listN.erase(listN.begin() + updateIndex);
+    	    listN.push_back(nodePtr->m_value);
+    	}
+    }
 
     // traverse to find nearest neighbor
     if ((target.*coordFunc)() < (nodePtr->m_value.*coordFunc)())
     {
-	OptNeighbor(nodePtr->m_left, target, listN, height + 1);
-	// detemine if we need to look at the other side
-	double biggest = (*(listN.begin())).GetDistance();
-	for (auto it = listN.begin(); it != listN.end(); ++it)
-	  {
-	    if ((*it).GetDistance() > biggest)
-	      {
-		biggest = (*it).GetDistance();
-	      }
-	  }
-	if ((biggest > abs((nodePtr->m_value.*coordFunc)() - (target.*coordFunc)()))
-	    || (listN.size() < NUM_NEAREST_NEIGH))
-	  {
-	    OptNeighbor(nodePtr->m_right, target, listN, height + 1);
-	  }
+    	OptNeighbor(nodePtr->m_left, target, listN, height + 1);
+    	// detemine if we need to look at the other side
+    	double biggest = (*(listN.begin())).GetDistance();
+    	for (auto it = listN.begin(); it != listN.end(); ++it)
+    	{
+    	   if ((*it).GetDistance() > biggest)
+    	   {
+    		  biggest = (*it).GetDistance();
+    	   }
+    	}
+    	if ((biggest > abs((nodePtr->m_value.*coordFunc)() - (target.*coordFunc)()))
+    	    || (listN.size() < NUM_NEAREST_NEIGH))
+    	{
+    	   OptNeighbor(nodePtr->m_right, target, listN, height + 1);
+    	}
     }
     else
     {
-	OptNeighbor(nodePtr->m_right, target, listN, height + 1);
-	// detemine if we need to look at the other side
-	double biggest = (*(listN.begin())).GetDistance();
-	for (auto it = listN.begin(); it != listN.end(); ++it)
-	  {
-	    if ((*it).GetDistance() > biggest)
-	      {
-		biggest = (*it).GetDistance();
-	      }
-	  }
-	if ((biggest > abs((nodePtr->m_value.*coordFunc)() - (target.*coordFunc)()))
-	    || (listN.size() < NUM_NEAREST_NEIGH))
-	  {
-	    OptNeighbor(nodePtr->m_left, target, listN, height + 1);
-	  }
+    	OptNeighbor(nodePtr->m_right, target, listN, height + 1);
+    	// detemine if we need to look at the other side
+    	double biggest = (*(listN.begin())).GetDistance();
+    	for (auto it = listN.begin(); it != listN.end(); ++it)
+    	{
+    	   if ((*it).GetDistance() > biggest)
+    	   {
+    		  biggest = (*it).GetDistance();
+    	   }
+    	}
+    	if ((biggest > abs((nodePtr->m_value.*coordFunc)() - (target.*coordFunc)()))
+    	    || (listN.size() < NUM_NEAREST_NEIGH))
+    	{
+    	   OptNeighbor(nodePtr->m_left, target, listN, height + 1);
+    	}
     }
 }

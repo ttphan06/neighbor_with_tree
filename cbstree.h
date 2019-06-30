@@ -10,7 +10,7 @@
 #define CBIN_SEARCH_TREE_HEADER
 
 #include    "ctreenode.h"
-#include    "neighbor.h"
+#include    "fieldnode.h"
 #include    <vector>
 
 int NUM_NEAREST_NEIGH = 1;

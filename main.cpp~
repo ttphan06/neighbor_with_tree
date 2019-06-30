@@ -3,7 +3,7 @@
 // ============================================================================
 
 #include <iostream>
-#include "fieldnode.h"
+#include "neighbor.h"
 #include "cbstree.h"
 #include <math.h>
 #include "ctreenode.h"
@@ -13,9 +13,9 @@ using namespace std;
 const int NUM_NODE = 100;
 
 // function prototype
-void SetupCoordinate(FieldNode node[]);
-void AddNodeToTree(FieldNode &root, FieldNode point[], CBSTree<FieldNode> &tree);
-void DisplayNeighbor(const FieldNode &neighbor);
+void SetupCoordinate(Neighbor node[]);
+void AddNodeToTree(Neighbor &root, Neighbor point[], CBSTree<Neighbor> &tree);
+void DisplayNeighbor(const Neighbor &neighbor);
 
 
 
@@ -25,8 +25,8 @@ void DisplayNeighbor(const FieldNode &neighbor);
 
 int main()
 {
-    FieldNode node[NUM_NODE];
-    CBSTree<FieldNode> neighborTree;
+    Neighbor node[NUM_NODE];
+    CBSTree<Neighbor> neighborTree;
     int center = 0;
     int numNeig = 0;
     char quit = 0;
@@ -76,7 +76,7 @@ int main()
 // Output: nothing
 // ============================================================================
 
-void SetupCoordinate(FieldNode node[])
+void SetupCoordinate(Neighbor node[])
 {
     for(int index = 0; index < NUM_NODE; ++index)
     {
@@ -101,7 +101,7 @@ void SetupCoordinate(FieldNode node[])
 // Output: nothing
 // ============================================================================
 
-void AddNodeToTree(FieldNode &root, FieldNode point[], CBSTree<FieldNode> &tree)
+void AddNodeToTree(Neighbor &root, Neighbor point[], CBSTree<Neighbor> &tree)
 {
     double sum = 0;
 
@@ -129,7 +129,7 @@ void AddNodeToTree(FieldNode &root, FieldNode point[], CBSTree<FieldNode> &tree)
 // Output: Nothing
 // ============================================================================
 
-void DisplayNeighbor(const FieldNode &neighbor)
+void DisplayNeighbor(const Neighbor &neighbor)
 {
     cout << "Point name: " << neighbor.GetName() <<endl;
     cout << "\t x coordinate: " << neighbor.GetXCoord() << endl;
